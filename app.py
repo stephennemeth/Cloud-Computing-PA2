@@ -21,16 +21,15 @@ def grade():
     file = request.files['file']
     filename = secure_filename(file.filename)
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    (score, submission) = grade()
+    score, submission = grade()
     return render_template("result.html", score=score, submission=submission)
 
 def grade():
     subprocess.call("rm -f ./a.out", shell=True)
     retcode = subprocess.call("/usr/bin/g++ uploads/walk.cc", shell=True) 
-
+    print(retcode)
     if retcode:
-        print("failed to compile walk.cc")
-        exit()
+        return 0, "failed to compile walk.cc"
 
     subprocess.call("rm -f ./output", shell=True) 
     retcode = subprocess.call("./test.sh", shell=True)
@@ -38,7 +37,7 @@ def grade():
     with open('uploads/walk.cc','r') as fs:
         submission = fs.read().replace('\n','<br>')
     
-    return (retcode, submission)
+    return retcode, submission
 
 
 if __name__ == "__main__":
